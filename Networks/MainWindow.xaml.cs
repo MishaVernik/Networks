@@ -21,47 +21,19 @@ namespace Networks
     /// </summary>
     public partial class MainWindow : Window
     {
-        private IBidirectionalGraph<object, IEdge<object>> _graphToVisualize;
-
-        public IBidirectionalGraph<object, IEdge<object>> GraphToVisualize
-        {
-            get { return _graphToVisualize; }
-        }
-
+        private MainWindowViewModel vm;
         public MainWindow()
         {
-            CreateGraphToVisualize();
+            vm = new MainWindowViewModel();
+            this.DataContext = vm;
             InitializeComponent();
         }
 
-        private void CreateGraphToVisualize()
+
+
+        private void Button_Click(object sender, RoutedEventArgs e)
         {
-            var g = new BidirectionalGraph<object, IEdge<object>>();
-
-            //add the vertices to the graph
-            string[] vertices = new string[15];
-            for (int i = 0; i < 15; i++)
-            {
-                vertices[i] = i.ToString();
-                g.AddVertex(vertices[i]);
-            }
-
-            //add some edges to the graph
-            g.AddEdge(new Edge<object>(vertices[0], vertices[1]));
-            g.AddEdge(new Edge<object>(vertices[1], vertices[2]));
-            g.AddEdge(new Edge<object>(vertices[2], vertices[3]));
-            g.AddEdge(new Edge<object>(vertices[3], vertices[1]));
-            g.AddEdge(new Edge<object>(vertices[1], vertices[4]));
-            g.AddEdge(new Edge<object>(vertices[1], vertices[7]));
-            g.AddEdge(new Edge<object>(vertices[2], vertices[11]));
-            g.AddEdge(new Edge<object>(vertices[3], vertices[7]));
-            g.AddEdge(new Edge<object>(vertices[6], vertices[7]));
-            g.AddEdge(new Edge<object>(vertices[8], vertices[9]));
-            g.AddEdge(new Edge<object>(vertices[7], vertices[14]));
-            g.AddEdge(new Edge<object>(vertices[11], vertices[13]));
-
-            _graphToVisualize = g;
+            vm.ReLayoutGraph();
         }
-      
     }
 }
