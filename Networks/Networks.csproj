@@ -151,7 +151,7 @@
     <Resource Include="Images\rotuer.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\boy.ico" />
+    <Resource Include="Images\user.ico" />
     <Resource Include="Images\wireless-router.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

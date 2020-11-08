@@ -105,6 +105,11 @@
                           SelectedItem="{Binding Path=LayoutAlgorithmType, Mode=TwoWay}"
                           Width="150" Height="25" Margin="5" />
                 <Button Content="Create New Graph" Width="150" Height="25" Margin="5" Click="Button_Click"/>
+                <Button  Width="30" Height="25" Margin="5" Click="ButtonAddNewRouter_Click">
+                    <StackPanel>
+                        <Image x:Name="TEST" Source="/Images/wireless-router.png" />
+                    </StackPanel>
+                </Button>
             </StackPanel>
 
 

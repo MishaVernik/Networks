@@ -60,7 +60,12 @@ namespace Networks
         }
         #endregion
 
-
+        public void AddNewVertex()
+        {
+            var vertex = new PocVertex("Router " + (this.Graph.VertexCount + 1).ToString(), true);
+            Graph.AddVertex(vertex);
+            //AddNewGraphEdge(existingVertices[0], existingVertices[1]);
+        }
         public void ReLayoutGraph()
         {
             graph = new PocGraph(true);

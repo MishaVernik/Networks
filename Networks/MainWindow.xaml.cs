@@ -29,7 +29,10 @@ namespace Networks
             InitializeComponent();
         }
 
-
+        private void ButtonAddNewRouter_Click(object sender, RoutedEventArgs routedEventArgs)
+        {
+            vm.AddNewVertex();
+        }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
