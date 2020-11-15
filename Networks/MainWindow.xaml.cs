@@ -22,10 +22,14 @@ namespace Networks
     public partial class MainWindow : Window
     {
         private MainWindowViewModel vm;
+        double RouterMenuHeight;
+        double RouterMenuWidth;
+
         public MainWindow()
         {
             vm = new MainWindowViewModel();
             this.DataContext = vm;
+            this.SizeChanged += OnWindowSizeChanged;
             InitializeComponent();
         }
 
@@ -37,6 +41,30 @@ namespace Networks
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             vm.ReLayoutGraph();
+        }
+        protected void OnWindowSizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            RouterMenuHeight = e.NewSize.Height * 0.5;
+            RouterMenuWidth = e.NewSize.Width * 0.3;
+          
+        }
+        private void StackPanel_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+          
+            this.RouterMenu.Visibility = Visibility.Visible;
+            this.RouterMenu.Width = RouterMenuWidth;
+            this.RouterMenu.Height = RouterMenuHeight;
+
+        }
+
+        private void graphLayout_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            this.RouterMenu.Visibility = Visibility.Hidden;
+        }
+
+        private void ZoomControl_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            this.RouterMenu.Visibility = Visibility.Hidden;
         }
     }
 }

@@ -35,7 +35,7 @@
 							        CornerRadius="10,10,10,10"
 							        Padding="{TemplateBinding Padding}">
 
-                            <StackPanel Orientation="Vertical">
+                            <StackPanel Orientation="Vertical" MouseDown="StackPanel_MouseDown">
 
                                 <Expander IsExpanded="True">
                                     <ContentPresenter Content="{TemplateBinding Vertex}" 
@@ -117,16 +117,25 @@
 
 
 
-        <zoom:ZoomControl  Grid.Row="1"  Zoom="0.2" ZoomBoxOpacity="0.5" Background="#ff656565">
-
-
-
-            <local:PocGraphLayout x:Name="graphLayout" Margin="10"
+        <zoom:ZoomControl  x:Name="zoomControl" Grid.Row="1"  Zoom="0.2" ZoomBoxOpacity="0.5" Background="#ff656565" MouseDown="ZoomControl_MouseDown">
+            <local:PocGraphLayout 
+                        x:Name="graphLayout" Margin="10"
+                        MouseDown="graphLayout_MouseDown"
 						Graph="{Binding Path=Graph}"
 						LayoutAlgorithmType="{Binding Path=LayoutAlgorithmType, Mode=OneWay}"
 						OverlapRemovalAlgorithmType="FSA"
 						HighlightAlgorithmType="Simple" />
         </zoom:ZoomControl>
+        
+        <DockPanel x:Name="RouterMenu" Visibility="Hidden" HorizontalAlignment="Right" Width="217" Background="Green" Height="364" LastChildFill="False" Margin="565,10,0,0" Grid.Row="1" VerticalAlignment="Top">
+            <Border CornerRadius="6" BorderBrush="Gray" Background="LightGray" BorderThickness="2" DockPanel.Dock="Top">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock FontSize="14" Padding="0 0 8 0" HorizontalAlignment="Center" VerticalAlignment="Center">Search:</TextBlock>
+                    <TextBox x:Name="txtSearchTerm" HorizontalAlignment="Center" VerticalAlignment="Center" Width="100"  />
+                    <Image Source="/Images/wireless-router.png" Width="32" Height="32" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </StackPanel>
+            </Border>
+        </DockPanel>
 
     </Grid>
 
