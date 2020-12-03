@@ -2,6 +2,8 @@
 using System.Diagnostics;
 using System.ComponentModel;
 using System;
+using GraphSharp;
+using System.Windows.Media;
 
 namespace Networks
 {
@@ -9,10 +11,13 @@ namespace Networks
     /// A simple identifiable edge.
     /// </summary>
     [DebuggerDisplay("{Source.ID} -> {Target.ID}")]
-    public class PocEdge : Edge<PocVertex>, INotifyPropertyChanged
+    public class PocEdge : TaggedEdge<PocVertex, object>, INotifyPropertyChanged
     {
+        public String text1 = "WEWEW";
         private string id;
-
+        public Color EdgeColor { get; set; }
+        public Int32 weight { get; set; }
+        public Double errorProbability { get; set; }
         public string ID
         {
             get { return id; }
@@ -23,12 +28,25 @@ namespace Networks
             }
         }
 
-        public PocEdge(string id, PocVertex source, PocVertex target)
-            : base(source, target)
+        public PocEdge(string id, PocVertex source, PocVertex target, object tag)
+            : base(source, target, tag)
         {
-            ID = id;
+            ID = id;            
+            errorProbability = new Random().Next(1, 6);
+            EdgeColor = Colors.YellowGreen;
+            ToolTip = weight.ToString();
+        }
+        public override string ToString()
+        {
+            return ToolTip;
         }
 
+        private string _toolTip;
+        public string ToolTip
+        {
+            get { return _toolTip; }
+            set { _toolTip = value; }
+        }
 
         #region INotifyPropertyChanged Implementation
 

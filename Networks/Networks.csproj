@@ -91,9 +91,19 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Data\NetworkTypes.cs" />
     <Compile Include="GraphBits\PocEdge.cs" />
     <Compile Include="GraphBits\PocGraph.cs" />
     <Compile Include="GraphBits\PocVertex.cs" />
+    <Compile Include="GraphBits\TaggedGraphLayout.cs" />
+    <Compile Include="PopupWindows\CreateNewGraphWindow.xaml.cs">
+      <DependentUpon>CreateNewGraphWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="PopupWindows\EdgeSettingsWindow.xaml.cs">
+      <DependentUpon>EdgeSettingsWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Services\EdgeColorConverter.cs" />
+    <Compile Include="Services\EdgeLabelControl.cs" />
     <Compile Include="ViewModel\MainWindowViewModel.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -107,6 +117,14 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="PopupWindows\CreateNewGraphWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="PopupWindows\EdgeSettingsWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -153,6 +171,22 @@
   <ItemGroup>
     <Resource Include="Images\user.ico" />
     <Resource Include="Images\wireless-router.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\line.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\selected_line.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\desktop-computer.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\desktop-computer_gray.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\message_gray.png" />
+    <Resource Include="Images\message_yellow.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
