@@ -1,13 +1,8 @@
 ﻿using GraphSharp.Controls;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using System.Windows.Shapes;
 
 namespace Networks.Services
 {
@@ -110,7 +105,7 @@ namespace Networks.Services
             return edgeLength / 2;  // set the label halfway the length of the edge
         }
 
-       
+
 
         private void EdgeLabelControl_LayoutUpdated(object sender, EventArgs e)
         {
@@ -126,7 +121,7 @@ namespace Networks.Services
             BuildEdgeControl(edgeControl, ref p1, ref p2);
         }
 
-        public  void BuildEdgeControl(EdgeControl edgeControl, ref Point p1, ref Point p2)
+        public void BuildEdgeControl(EdgeControl edgeControl, ref Point p1, ref Point p2)
         {
             double edgeLength;
             var routePoints = edgeControl.RoutePoints;

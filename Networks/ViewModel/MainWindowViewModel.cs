@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.ComponentModel;
-using GraphSharp.Controls;
+﻿using GraphSharp.Controls;
 using Networks.Data;
 using Networks.PopupWindows;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
 
 namespace Networks
 {
@@ -99,10 +98,10 @@ namespace Networks
             Graph.AddVertex(vertex);
         }
 
-     
+
         private void Graph_VertexAdded(PocVertex vertex)
         {
-            
+
             //throw new NotImplementedException();
         }
 
@@ -160,7 +159,7 @@ namespace Networks
                 {
                     AddNewGraphEdge(pocVertices[routerIndex], pocVertices[joinIndex % (vertexCapacity - 1)]);
                 }
-            }            
+            }
             NotifyPropertyChanged("Graph");
         }
 

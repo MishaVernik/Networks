@@ -1,8 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using Networks.Data;
 using System.Diagnostics;
-using Networks.Data;
 
 namespace Networks
 {
@@ -12,14 +9,16 @@ namespace Networks
     [DebuggerDisplay("{ID}-{IsSatteliteRouter}")]
     public class PocVertex
     {
+        public static int globalIndex = 0;
         public NetworkType networkType { get; set; }
         public string ID { get; private set; }
         public bool IsSatteliteRouter { get; private set; }
-
+        public int idNumber { get; set; }
         public PocVertex(string id, NetworkType networkType, bool isSatteliteRouter)
         {
             this.networkType = networkType;
             ID = id;
+            idNumber = globalIndex++;
             IsSatteliteRouter = isSatteliteRouter;
         }
 

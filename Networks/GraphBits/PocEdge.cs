@@ -1,8 +1,7 @@
 ﻿using QuickGraph;
-using System.Diagnostics;
-using System.ComponentModel;
 using System;
-using GraphSharp;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Windows.Media;
 
 namespace Networks
@@ -13,7 +12,6 @@ namespace Networks
     [DebuggerDisplay("{Source.ID} -> {Target.ID}")]
     public class PocEdge : TaggedEdge<PocVertex, object>, INotifyPropertyChanged
     {
-        public String text1 = "WEWEW";
         private string id;
         public Color EdgeColor { get; set; }
         public Int32 weight { get; set; }
@@ -31,7 +29,7 @@ namespace Networks
         public PocEdge(string id, PocVertex source, PocVertex target, object tag)
             : base(source, target, tag)
         {
-            ID = id;            
+            ID = id;
             errorProbability = new Random().Next(1, 6);
             EdgeColor = Colors.YellowGreen;
             ToolTip = weight.ToString();
