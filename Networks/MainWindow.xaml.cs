@@ -58,7 +58,7 @@ namespace Networks
             bitmapMessage = new BitmapImage(new Uri("pack://application:,,,/Images/message_gray.png"));
 
             dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
-            dispatcherTimer.Interval = new TimeSpan(0, 5, 0);
+            dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 100);
 
 
             vm = new MainWindowViewModel();
@@ -205,7 +205,67 @@ namespace Networks
             //DijkstrasAlgorithm.dijkstra(m, Convert.ToInt32(fromRouter.Replace("Router", "").Replace("Computer", "")));
             ShortestPathResult result = graph.Dijkstra((uint)fromRouterId + 1, (uint)toRouterId + 1); //result contains the shortest path                               
             var path = string.Join(" -> ", result.GetPath());
-            MessageBox.Show(path);
+
+            // ================= CREATE ANIMATED MESSAGE ====================================
+            var vertexPath = result.GetPath().ToList();
+            AnimateMessage animateMessage = new AnimateMessage();
+
+            var sourceVertex = vm.Graph.Vertices.Where(x => x.idNumber == fromRouterId).FirstOrDefault();
+            var targetVertex = vm.Graph.Vertices.Where(x => x.idNumber == toRouterId).FirstOrDefault();
+
+            animateMessage.sourceId = fromRouterId;
+            animateMessage.targetId = toRouterId;
+
+            animateMessage.vertexPath.Add(fromRouterId);
+            for (int vertexIndex = 1; vertexIndex < vertexPath.Count(); vertexIndex++)
+            {
+
+                sourceVertex = vm.Graph.Vertices.Where(x => x.idNumber == (int)vertexPath[vertexIndex - 1] - 1).FirstOrDefault();
+                targetVertex = vm.Graph.Vertices.Where(x => x.idNumber == (int)vertexPath[vertexIndex] - 1).FirstOrDefault();
+
+                animateMessage.vertexPath.Add((int)vertexPath[vertexIndex] - 1);
+
+
+                PocEdge pocEdge;
+                if (vm.Graph.TryGetEdge(sourceVertex, targetVertex, out pocEdge))
+                {
+                    foreach (var edgeControl in this.graphLayout.Children.OfType<EdgeControl>())
+                    {
+                        if (((PocEdge)edgeControl.DataContext).ID == pocEdge.ID)
+                        {
+                            if (edgeControl == null)
+                                return;
+                            var source = edgeControl.Source;
+                            // MessageBox.Show(source.DataContext.ToString());
+                            var p1 = new Point(GraphCanvas.GetX(source), GraphCanvas.GetY(source));
+                            var target = edgeControl.Target;
+                            var p2 = new Point(GraphCanvas.GetX(target), GraphCanvas.GetY(target));
+                            animateMessage.edgeId = pocEdge.ID;
+                            if (animateMessage.pointPath.Count == 0)
+                            {
+                                animateMessage.currentPoint = p1;
+                                //animateMessage.currentPointId++;
+                                animateMessage.pointPath.Add(p1);
+                            }
+
+                            if (edgeControl.RoutePoints != null)
+                            {
+                                animateMessage.pointPath.AddRange(edgeControl.RoutePoints);
+                            }
+
+                            animateMessage.pointPath.Add(p2);
+
+
+                        }
+                    }
+                }
+            }
+
+            messages.Add(animateMessage);
+            // =====================================================
+
+            //MessageBox.Show(path);
+            Console.WriteLine(path);
         }
 
         private void ResetDrawingMode()
@@ -348,41 +408,92 @@ namespace Networks
         #endregion
         #region Message Animation
 
-
-        private void dispatcherTimer_Tick(object sender, EventArgs e)
+        private class AnimateMessage
         {
-            // code goes here
-            RemoveLines();
-            it += 10;
-            EdgeControl edgeControl = (EdgeControl)sender;
-            if (edgeControl == null)
-                return;
-            var source = edgeControl.Source;
-            // MessageBox.Show(source.DataContext.ToString());
-            var p1 = new Point(GraphCanvas.GetX(source), GraphCanvas.GetY(source));
-            var target = edgeControl.Target;
-            var p2 = new Point(GraphCanvas.GetX(target), GraphCanvas.GetY(target));
-            if (prevPoint.X != -1 && prevPoint.Y != -1)
-            {
-                p1 = prevPoint;
-            }
-            p2 = BuildLine(p1, p2);
-            Line line = new Line();
+            public bool isFinished { get; set; }
 
-            line.X1 = p1.X;
-            line.X2 = p2.X;
-            line.Y1 = p1.Y;
-            line.Y2 = p2.Y;
+            public int sourceId { get; set; }
+            public int targetId { get; set; }
+            public String edgeId { get; set; }
+
+            public Point currentPoint;
+            public int currentPointId { get; set; }
+            public List<Point> pointPath { get; set; }
+            public List<Int32> vertexPath { get; set; }
+
+
+            public int distance { get; set; }
+            public AnimateMessage()
+            {
+                currentPointId = 0;
+                isFinished = false;
+                vertexPath = new List<int>();
+                pointPath = new List<Point>();
+
+            }
+        }
+        private void DrawAnimtaedMessageLine(Point currentPoint, Point point)
+        {
+            RemoveLines();
+            Line line = new Line();
+            line.X1 = currentPoint.X;
+            line.X2 = point.X;
+            line.Y1 = currentPoint.Y;
+            line.Y2 = point.Y;
             SolidColorBrush redBrush = new SolidColorBrush();
             redBrush.Color = Colors.Red;
-
-            // Set Line's width and color  
             line.StrokeThickness = 4;
             line.Stroke = redBrush;
-            //rectangle.Arrange(new Rect(p1, p2));
+
             // ((PocEdge)((System.Windows.FrameworkElement)this.graphLayout.Children[0]).DataContext).ID
             this.graphLayout.Children.Add(line);
         }
+        List<AnimateMessage> messages = new List<AnimateMessage>();
+        private void dispatcherTimer_Tick(object sender, EventArgs e)
+        {
+            // code goes here
+            // 1. Get EdgeControl
+            // 2. Get source and target
+            // 3. Get route points
+            // 4. Iterate                                  
+            for (int message = 0; message < messages.Count; message++)
+            {
+                if (messages[message].isFinished)
+                {
+                    continue;
+                }
+                if (messages[message].currentPointId + 1 >= messages[message].pointPath.Count())
+                {
+                    messages[message].isFinished = true;
+                    continue;
+                }
+                Point point = MovePointTowards(messages[message].currentPoint, messages[message].pointPath[messages[message].currentPointId + 1], messages[message].distance);
+                DrawAnimtaedMessageLine(currentPoint: messages[message].currentPoint,
+                    point: point);
+                messages[message].currentPoint = point;
+
+                if (Math.Abs(messages[message].currentPoint.X - messages[message].pointPath[messages[message].currentPointId + 1].X) < 20 &&
+                    Math.Abs(messages[message].currentPoint.Y - messages[message].pointPath[messages[message].currentPointId + 1].Y) < 20)
+                {
+                    messages[message].distance = 1;
+                    if (messages[message].currentPointId + 1 >= messages[message].pointPath.Count)
+                    {
+                        messages[message].isFinished = true;
+                    }
+                    else
+                    {
+                        messages[message].currentPoint = messages[message].pointPath[messages[message].currentPointId + 1];
+                        messages[message].currentPointId++;
+                    }
+                }
+                else
+                {
+                    messages[message].distance = 10;
+                }
+            }
+        }
+
+
 
         private void ButtonSendMessage_Click(object sender, RoutedEventArgs e)
         {
@@ -391,61 +502,25 @@ namespace Networks
                 case OperationState.None:
                     operationState = OperationState.SendMessage;
                     this.SendMessage.Source = bitmapSelectedMessage;
+                    it = 10;
                     dispatcherTimer.Start();
                     break;
-                default:
+                case OperationState.SendMessage:
                     operationState = OperationState.None;
                     dispatcherTimer.Stop();
                     this.SendMessage.Source = bitmapMessage;
                     break;
+                default:
+                    break;
             }
         }
-        private Point BuildLine(Point p1, Point p2)
-        {
-            if (p1.X <= p2.X)
-            {
-                if (p1.X > 0)
-                {
-                    for (double x = p1.X + it; x <= p2.X; x += it)
-                    {
-                        double y = (x - p1.X) * ((p2.Y - p1.Y) / (p2.X - p1.X)) + p1.Y;
-                        prevPoint = new Point(x, y);
-                        return prevPoint;
-                    }
-                }
-                else
-                {
-                    for (double x = p1.X + it; x <= p2.X; x -= it)
-                    {
-                        double y = (x - p1.X) * ((p2.Y - p1.Y) / (p2.X - p1.X)) + p1.Y;
-                        prevPoint = new Point(x, y);
-                        return prevPoint;
-                    }
-                }
-            }
-            else
-            {
-                if (p1.X > 0)
-                {
-                    for (double x = p1.X + it; x >= p2.X; x -= it)
-                    {
-                        double y = (x - p1.X) * ((p2.Y - p1.Y) / (p2.X - p1.X)) + p1.Y;
-                        prevPoint = new Point(x, y);
-                        return prevPoint;
-                    }
-                }
-                else
-                {
-                    for (double x = p1.X + it; x >= p2.X; x += it)
-                    {
-                        double y = (x - p1.X) * ((p2.Y - p1.Y) / (p2.X - p1.X)) + p1.Y;
-                        prevPoint = new Point(x, y);
-                        return prevPoint;
-                    }
-                }
 
-            }
-            return prevPoint;
+        private Point MovePointTowards(Point a, Point b, int distance)
+        {
+            var vector = new Point(b.X - a.X, b.Y - a.Y);
+            var length = Math.Sqrt(vector.X * vector.X + vector.Y * vector.Y);
+            var unitVector = new Point(vector.X / length, vector.Y / length);
+            return new Point(a.X + unitVector.X * distance, a.Y + unitVector.Y * distance);
         }
         int it = 10;
         Point prevPoint = new Point(-1, -1);
