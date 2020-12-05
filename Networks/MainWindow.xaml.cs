@@ -11,6 +11,7 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -24,6 +25,21 @@ namespace Networks
     public partial class MainWindow : Window
     {
         #region Private Members
+        private struct PackageMessage
+        {
+            public String info;
+            public Int32 size;
+            public MessageType messageType;
+
+            public PackageMessage(string info, int size, MessageType messageType)
+            {
+                this.info = info;
+                this.size = size;
+                this.messageType = messageType;
+
+            }
+        }
+        private PackageMessage packageMessage;
         private MessageType messageType;
 
         private MainWindowViewModel vm;
@@ -208,6 +224,10 @@ namespace Networks
             var vertexPath = result.GetPath().ToList();
             AnimateMessage animateMessage = new AnimateMessage();
 
+            animateMessage.size = packageMessage.size;
+            animateMessage.info = packageMessage.info;
+            animateMessage.messageType = packageMessage.messageType;
+
             var sourceVertex = vm.Graph.Vertices.Where(x => x.idNumber == fromRouterId).FirstOrDefault();
             var targetVertex = vm.Graph.Vertices.Where(x => x.idNumber == toRouterId).FirstOrDefault();
 
@@ -256,8 +276,29 @@ namespace Networks
                     }
                 }
             }
+            List<AnimateMessage> animateMessages = new List<AnimateMessage>();
+            switch (packageMessage.messageType)
+            {
+                case MessageType.Logical:                    
+                    animateMessage.packageType = PackageType.System;
+                    animateMessages.Add(animateMessage.DeepClone());
+                    animateMessage.packageType = PackageType.Info;
+                    animateMessages.Add(animateMessage.DeepClone());
+                    animateMessage.packageType = PackageType.System;
+                    animateMessages.Add(animateMessage.DeepClone());
+                    messages.Add(animateMessages);
+                    break;
+                case MessageType.Datagram:
+                    animateMessage.packageType = PackageType.Info;
+                    animateMessages.Add(animateMessage);
+                    messages.Add(animateMessages);
+                    break;
+                case MessageType.VirtualConnection:
+                    break;
+                default:
+                    break;
+            }
 
-            messages.Add(animateMessage);
             // =====================================================
 
             //MessageBox.Show(path);
@@ -433,22 +474,68 @@ namespace Networks
         }
         #region Message Animation
 
-        private void DrawAnimtaedMessageLine(Point currentPoint, Point point)
+        private void DrawAnimtaedMessageLine(Point currentPoint, Point point, PackageType packageType)
         {
             Line line = new Line();
+            Line line2 = new Line();
+            Line line3 = new Line();
+            Line line4 = new Line();
+            var vector = new Point(currentPoint.X - point.X, currentPoint.Y - point.Y);
+            var length = Math.Sqrt(vector.X * vector.X + vector.Y * vector.Y);
+
             line.X1 = currentPoint.X;
             line.X2 = point.X;
             line.Y1 = currentPoint.Y;
             line.Y2 = point.Y;
+
+            line2.X1 = currentPoint.X;
+            line2.X2 = currentPoint.X + length;
+            line2.Y1 = currentPoint.Y;
+            line2.Y2 = currentPoint.Y;
+
+            line3.X1 = point.X;
+            line3.X2 = point.X + length;
+            line3.Y1 = point.Y;
+            line3.Y2 = point.Y;
+
+            line4.X1 = currentPoint.X + length;
+            line4.X2 = point.X + length;
+            line4.Y1 = currentPoint.Y;
+            line4.Y2 = point.Y;
+
+
             SolidColorBrush redBrush = new SolidColorBrush();
-            redBrush.Color = Colors.Red;
+            switch (packageType)
+            {
+                case PackageType.System:
+                    redBrush.Color = Colors.Blue;
+                    break;
+                case PackageType.Info:
+                    redBrush.Color = Colors.Red;
+                    break;
+                default:
+                    break;
+            }
+           
             line.StrokeThickness = 4;
             line.Stroke = redBrush;
 
+            line2.StrokeThickness = 4;
+            line2.Stroke = redBrush;
+
+            line3.StrokeThickness = 4;
+            line3.Stroke = redBrush;
+
+            line4.StrokeThickness = 4;
+            line4.Stroke = redBrush;
+
             // ((PocEdge)((System.Windows.FrameworkElement)this.graphLayout.Children[0]).DataContext).ID
             this.graphLayout.Children.Add(line);
+            this.graphLayout.Children.Add(line2);
+            this.graphLayout.Children.Add(line3);
+            this.graphLayout.Children.Add(line4);
         }
-        List<AnimateMessage> messages = new List<AnimateMessage>();
+        List<List<AnimateMessage>> messages = new List<List<AnimateMessage>>();
         private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
             // code goes here
@@ -457,49 +544,59 @@ namespace Networks
             // 3. Get route points
             // 4. Iterate     
             RemoveLines();
-            for (int message = 0; message < messages.Count; message++)
+            for (int outerMessageIndex = 0; outerMessageIndex < messages.Count; outerMessageIndex++)
             {
-                if (messages[message].isFinished)
+                for (int message = 0; message < messages[outerMessageIndex].Count; message++)
                 {
-                    continue;
-                }
-                if (messages[message].currentPointId + 1 >= messages[message].pointPath.Count())
-                {
-                    messages[message].isFinished = true;
-                    continue;
-                }
-                Point point = MovePointTowards(
-                    messages[message].currentPoint,
-                    messages[message].pointPath[messages[message].currentPointId + 1],
-                    messages[message].distance + messages[message].edgeBandwidth[messages[message].currentEdgeId].Key / 1024);
-                DrawAnimtaedMessageLine(currentPoint: messages[message].currentPoint,
-                    point: point);
-                messages[message].currentPoint = point;
-                if (Math.Abs(messages[message].edgeBandwidth[messages[message].currentEdgeId].Value.X - messages[message].pointPath[messages[message].currentPointId].X) < 20 &&
-                       Math.Abs(messages[message].edgeBandwidth[messages[message].currentEdgeId].Value.Y - messages[message].pointPath[messages[message].currentPointId].Y) < 20)
-                {
-                    if (messages[message].currentEdgeId + 1 < messages[message].edgeBandwidth.Count)
+                    if (messages[outerMessageIndex][message].isFinished)
                     {
-                        messages[message].currentEdgeId++;
+                        continue;
                     }
-                }
-                if (Math.Abs(messages[message].currentPoint.X - messages[message].pointPath[messages[message].currentPointId + 1].X) < 20 &&
-                    Math.Abs(messages[message].currentPoint.Y - messages[message].pointPath[messages[message].currentPointId + 1].Y) < 20)
-                {
-                    messages[message].distance = 1;
-                    if (messages[message].currentPointId + 1 >= messages[message].pointPath.Count)
+                    if (messages[outerMessageIndex][message].currentPointId + 1 >= messages[outerMessageIndex][message].pointPath.Count())
                     {
-                        messages[message].isFinished = true;
+                        messages[outerMessageIndex][message].isFinished = true;
+                        continue;
+                    }
+                    Point point = MovePointTowards(
+                        messages[outerMessageIndex][message].currentPoint,
+                        messages[outerMessageIndex][message].pointPath[messages[outerMessageIndex][message].currentPointId + 1],
+                        messages[outerMessageIndex][message].distance + messages[outerMessageIndex][message].edgeBandwidth[messages[outerMessageIndex][message].currentEdgeId].Key / 1024);
+                    DrawAnimtaedMessageLine(
+                        currentPoint: messages[outerMessageIndex][message].currentPoint,
+                        point: point,
+                        packageType: messages[outerMessageIndex][message].packageType);
+                    messages[outerMessageIndex][message].currentPoint = point;
+                    if (Math.Abs(messages[outerMessageIndex][message].edgeBandwidth[messages[outerMessageIndex][message].currentEdgeId].Value.X
+                        - messages[outerMessageIndex][message].pointPath[messages[outerMessageIndex][message].currentPointId].X) < 20 &&
+                           Math.Abs(messages[outerMessageIndex][message].edgeBandwidth[messages[outerMessageIndex][message].currentEdgeId].Value.Y 
+                           - messages[outerMessageIndex][message].pointPath[messages[outerMessageIndex][message].currentPointId].Y) < 20)
+                    {
+                        if (messages[outerMessageIndex][message].currentEdgeId + 1 < messages[outerMessageIndex][message].edgeBandwidth.Count)
+                        {
+                            messages[outerMessageIndex][message].currentEdgeId++;
+                        }
+                    }
+                    if (Math.Abs(messages[outerMessageIndex][message].currentPoint.X 
+                        - messages[outerMessageIndex][message].pointPath[messages[outerMessageIndex][message].currentPointId + 1].X) < 20 &&
+                        Math.Abs(messages[outerMessageIndex][message].currentPoint.Y 
+                        - messages[outerMessageIndex][message].pointPath[messages[outerMessageIndex][message].currentPointId + 1].Y) < 20)
+                    {
+                        messages[outerMessageIndex][message].distance = 1;
+                        if (messages[outerMessageIndex][message].currentPointId + 1 >= messages[outerMessageIndex][message].pointPath.Count)
+                        {
+                            messages[outerMessageIndex][message].isFinished = true;
+                        }
+                        else
+                        {
+                            messages[outerMessageIndex][message].currentPoint = messages[outerMessageIndex][message].pointPath[messages[outerMessageIndex][message].currentPointId + 1];
+                            messages[outerMessageIndex][message].currentPointId++;
+                        }
                     }
                     else
                     {
-                        messages[message].currentPoint = messages[message].pointPath[messages[message].currentPointId + 1];
-                        messages[message].currentPointId++;
+                        messages[outerMessageIndex][message].distance = 10;
                     }
-                }
-                else
-                {
-                    messages[message].distance = 10;
+                    break;
                 }
             }
         }
@@ -517,6 +614,7 @@ namespace Networks
                     // Create package
                     CreatePackageWindow createPackageWindow = new CreatePackageWindow();
                     createPackageWindow.Show();
+                    createPackageWindow.Closed += CreatePackageWindow_Closed;
                     //dispatcherTimer.Start();
                     break;
                 case OperationState.SendMessage:
@@ -526,6 +624,17 @@ namespace Networks
                     break;
                 default:
                     break;
+            }
+        }
+
+        private void CreatePackageWindow_Closed(object sender, EventArgs e)
+        {
+
+            CreatePackageWindow createPackageWindow = (CreatePackageWindow)sender;
+            if (createPackageWindow.IsSaved)
+            {
+                string richText = new TextRange(createPackageWindow.richTextBox.Document.ContentStart, createPackageWindow.richTextBox.Document.ContentEnd).Text;
+                packageMessage = new PackageMessage(richText, Convert.ToInt32(createPackageWindow.txtSize.Text), messageType);
             }
         }
 

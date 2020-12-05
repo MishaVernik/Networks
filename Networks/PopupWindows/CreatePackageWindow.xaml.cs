@@ -39,14 +39,14 @@ namespace Networks.PopupWindows
 
         private void btnSave_Click(object sender, RoutedEventArgs e)
         {
-            string richText = new TextRange(richTextBox.Document.ContentStart, richTextBox.Document.ContentEnd).Text;
-            if (richText.Length > Convert.ToInt32(txtSize.Text))
+            string richText = new TextRange(richTextBox.Document.ContentStart, richTextBox.Document.ContentEnd).Text.Replace('\r', '@').Replace('\n', '@');
+            if (richText.Length > Convert.ToInt32(txtSize.Text) + richText.Count(x => x == '@'))
             {
                 MessageBox.Show("Data is bigger than size");
             }
             else
             {
-                IsSaved = false;
+                IsSaved = true;
                 this.Close();
             }
 
@@ -55,15 +55,10 @@ namespace Networks.PopupWindows
         private void btnClose_Click(object sender, RoutedEventArgs e)
         {
             string richText = new TextRange(richTextBox.Document.ContentStart, richTextBox.Document.ContentEnd).Text;
-            if (richText.Length > Convert.ToInt32(txtSize.Text))
-            {
-                MessageBox.Show("Data is bigger than size");
-            }
-            else
-            {
-                IsSaved = false;
-                this.Close();
-            }
+
+            IsSaved = false;
+            this.Close();
+
 
         }
 

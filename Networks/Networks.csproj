@@ -98,6 +98,7 @@
     <Compile Include="Data\LinkType.cs" />
     <Compile Include="Data\MessageType.cs" />
     <Compile Include="Data\OperationState.cs" />
+    <Compile Include="Data\PackageType.cs" />
     <Compile Include="PopupWindows\CreatePackageWindow.xaml.cs">
       <DependentUpon>CreatePackageWindow.xaml</DependentUpon>
     </Compile>

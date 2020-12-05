@@ -7,10 +7,9 @@ using System.Threading.Tasks;
 namespace Networks.Data
 {
     [Serializable]
-    public enum MessageType
+    public enum PackageType
     {
-        Logical,
-        Datagram,
-        VirtualConnection
+        System,
+        Info
     }
 }

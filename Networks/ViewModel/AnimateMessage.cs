@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Networks.Data;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,8 +8,11 @@ using System.Windows;
 
 namespace Networks
 {
+    [Serializable]
     public class AnimateMessage
     {
+        public PackageType packageType { get; set; }
+        public MessageType messageType { get; set; }
         public Int32 size { get; set; }
         public String info { get; set; }
         public bool isFinished { get; set; }
@@ -19,7 +23,7 @@ namespace Networks
 
         public Point currentPoint;
         public int currentPointId { get; set; }
-        public int currentEdgeId { get; set; }
+        public int currentEdgeId { get; set; }        
         public List<Point> pointPath { get; set; }
         public List<Int32> vertexPath { get; set; }
         public List<KeyValuePair<Int32, Point>> edgeBandwidth { get; set; }
@@ -27,6 +31,8 @@ namespace Networks
         public int distance { get; set; }
         public AnimateMessage()
         {
+            packageType = PackageType.Info;
+            messageType = MessageType.Logical;
             currentEdgeId = 0;
             currentPointId = 0;
             isFinished = false;
