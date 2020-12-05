@@ -1,6 +1,7 @@
 ﻿using Dijkstra.NET.Graph;
 using Dijkstra.NET.ShortestPath;
 using GraphSharp.Controls;
+using Networks.Data;
 using Networks.PopupWindows;
 using System;
 using System.Collections.Generic;
@@ -8,6 +9,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -21,12 +23,7 @@ namespace Networks
     public partial class MainWindow : Window
     {
         #region Private Members
-        private enum OperationState
-        {
-            None,
-            LinkSelected,
-            SendMessage
-        }
+        private MessageType messageType;
 
         private MainWindowViewModel vm;
         private double RouterMenuHeight;
@@ -41,7 +38,7 @@ namespace Networks
 
         private Point startPoint;
         private Point startStackPanelPoint;
-        OperationState operationState;
+        private OperationState operationState;
         private int currentSelectedRouter = 0;
         private String fromRouter = String.Empty;
         private String toRouter = String.Empty;
@@ -236,7 +233,6 @@ namespace Networks
                             if (edgeControl == null)
                                 return;
                             var source = edgeControl.Source;
-                            // MessageBox.Show(source.DataContext.ToString());
                             var p1 = new Point(GraphCanvas.GetX(source), GraphCanvas.GetY(source));
                             var target = edgeControl.Target;
                             var p2 = new Point(GraphCanvas.GetX(target), GraphCanvas.GetY(target));
@@ -244,7 +240,6 @@ namespace Networks
                             if (animateMessage.pointPath.Count == 0)
                             {
                                 animateMessage.currentPoint = p1;
-                                //animateMessage.currentPointId++;
                                 animateMessage.pointPath.Add(p1);
                             }
 
@@ -252,10 +247,7 @@ namespace Networks
                             {
                                 animateMessage.pointPath.AddRange(edgeControl.RoutePoints);
                             }
-
                             animateMessage.pointPath.Add(p2);
-
-
                         }
                     }
                 }
@@ -351,10 +343,40 @@ namespace Networks
                     this.RouterMenu.Height = RouterMenuHeight;
 
                     ResetDrawingMode();
+                    BuildRoutingTable(((PocVertex)stackPanel.DataContext));
+
                     break;
             }
         }
 
+        private void BuildRoutingTable(PocVertex vertex)
+        {
+            this.routerDataGrid.Items.Clear();
+            this.routerDataGrid.Columns.Clear();
+            DataGridTextColumn c1 = new DataGridTextColumn();
+            c1.Header = "From";
+            c1.Binding = new Binding("sourceId");
+            c1.Width = 110;
+            this.routerDataGrid.Columns.Add(c1);
+            DataGridTextColumn c2 = new DataGridTextColumn();
+            c2.Header = "To";
+            c2.Width = 110;
+            c2.Binding = new Binding("targetId");
+            this.routerDataGrid.Columns.Add(c2);
+            DataGridTextColumn c3 = new DataGridTextColumn();
+            c3.Header = "Cost";
+            c3.Width = 110;
+            c3.Binding = new Binding("weight");
+            this.routerDataGrid.Columns.Add(c3);
+
+            if (vm.Graph.TryGetOutEdges(vertex, out IEnumerable<PocEdge> edges))
+            {
+                foreach (PocEdge edge in edges)
+                {
+                    this.routerDataGrid.Items.Add(new RoutingTable() { sourceId = vertex.ID, targetId = edge.Target.ID, weight = edge.Tag.ToString() });
+                }
+            }
+        }
 
         private void graphLayout_MouseDown(object sender, MouseButtonEventArgs e)
         {
@@ -404,37 +426,11 @@ namespace Networks
         private void zoomControl_LayoutUpdated(object sender, EventArgs e)
         {
 
-        }
-        #endregion
+        }        
         #region Message Animation
 
-        private class AnimateMessage
-        {
-            public bool isFinished { get; set; }
-
-            public int sourceId { get; set; }
-            public int targetId { get; set; }
-            public String edgeId { get; set; }
-
-            public Point currentPoint;
-            public int currentPointId { get; set; }
-            public List<Point> pointPath { get; set; }
-            public List<Int32> vertexPath { get; set; }
-
-
-            public int distance { get; set; }
-            public AnimateMessage()
-            {
-                currentPointId = 0;
-                isFinished = false;
-                vertexPath = new List<int>();
-                pointPath = new List<Point>();
-
-            }
-        }
         private void DrawAnimtaedMessageLine(Point currentPoint, Point point)
-        {
-            RemoveLines();
+        {            
             Line line = new Line();
             line.X1 = currentPoint.X;
             line.X2 = point.X;
@@ -455,7 +451,8 @@ namespace Networks
             // 1. Get EdgeControl
             // 2. Get source and target
             // 3. Get route points
-            // 4. Iterate                                  
+            // 4. Iterate     
+            RemoveLines();
             for (int message = 0; message < messages.Count; message++)
             {
                 if (messages[message].isFinished)
@@ -534,6 +531,74 @@ namespace Networks
             // 4. Дуплекс/ полудуплекс
             edgeSettings.Show();
         }
+        #endregion
+        #region Settings
+
+       
+        private void btnSettings_Click(object sender, RoutedEventArgs e)
+        {
+            ProgramSettingsWindow programSettingsWindow = new ProgramSettingsWindow();
+            switch (messageType)
+            {
+                case MessageType.Logical:
+                    programSettingsWindow.rbtnLogicTCP.IsChecked = true;
+                    programSettingsWindow.rbtndatagramUDP.IsChecked = false;
+                    programSettingsWindow.rbtnVirtualConnection.IsChecked = false;
+                    break;
+                case MessageType.Datagram:
+                    programSettingsWindow.rbtnLogicTCP.IsChecked = false;
+                    programSettingsWindow.rbtndatagramUDP.IsChecked = true;
+                    programSettingsWindow.rbtnVirtualConnection.IsChecked = false;
+                    break;
+                case MessageType.VirtualConnection:
+                    programSettingsWindow.rbtnLogicTCP.IsChecked = false;
+                    programSettingsWindow.rbtndatagramUDP.IsChecked = false;
+                    programSettingsWindow.rbtnVirtualConnection.IsChecked = true;
+                    break;              
+                default:
+                    programSettingsWindow.rbtnLogicTCP.IsChecked = true;
+                    programSettingsWindow.rbtndatagramUDP.IsChecked = false;
+                    programSettingsWindow.rbtnVirtualConnection.IsChecked = false;
+                    break;
+            }
+            programSettingsWindow.Show();
+            programSettingsWindow.Closed += ProgramSettingsWindow_Closed;
+        }
+
+        private void ProgramSettingsWindow_Closed(object sender, EventArgs e)
+        {
+            if (((ProgramSettingsWindow)sender).rbtnLogicTCP.IsChecked == true)
+            {
+                messageType = MessageType.Logical;
+            }
+            else if (((ProgramSettingsWindow)sender).rbtndatagramUDP.IsChecked == true)
+            {
+                messageType = MessageType.Datagram;
+            }
+            else if (((ProgramSettingsWindow)sender).rbtnVirtualConnection.IsChecked == true)
+            {
+                messageType = MessageType.VirtualConnection;
+            }
+        }
+        #endregion
+        #region Timer Start/Stop
+
+       
+        private void btnPauseTimer_Click(object sender, RoutedEventArgs e)
+        {
+            dispatcherTimer.Stop();
+        }
+
+        private void btnStartTimer_Click(object sender, RoutedEventArgs e)
+        {
+            dispatcherTimer.Start();
+        }
+
+        private void Slider_DragCompleted(object sender, System.Windows.Controls.Primitives.DragCompletedEventArgs e)
+        {
+            dispatcherTimer.Interval = new TimeSpan(0,0,0,0, (Int32)((Slider)sender).Value);
+        }
+        #endregion
         #endregion
     }
 }

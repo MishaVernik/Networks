@@ -8,6 +8,7 @@
         xmlns:local="clr-namespace:Networks"
         xmlns:Converters="clr-namespace:GraphSharp.Converters;assembly=GraphSharp.Controls"
         xmlns:local1="clr-namespace:Networks.Services"
+        xmlns:col="clr-namespace:System.Collections;assembly=mscorlib"
         x:Name="root"
         mc:Ignorable="d"
         Title="MainWindow" 
@@ -183,6 +184,27 @@
                 </Button>
                 <TextBox x:Name="textBox" Height="23" TextWrapping="Wrap" Text="TextBox" Width="104"/>
                 <TextBox x:Name="textBox_Copy" Height="23" TextWrapping="Wrap" Text="TextBox" Width="112"/>
+                <Button x:Name="btnPauseTimer"  Width="30" Height="25" Margin="5" Click="btnPauseTimer_Click">
+                    <StackPanel>
+                        <Image x:Name="PauseTimer" Source="/Images/pause.png" Width="30" Height="19" />
+                    </StackPanel>
+                </Button>
+                <Button x:Name="btnStartTimer" Width="30" Height="25" Margin="5" Click="btnStartTimer_Click">
+                    <StackPanel>
+                        <Image x:Name="StartTimer" Source="/Images/play.png" Width="30" Height="19" />
+                    </StackPanel>
+                </Button>
+                <StackPanel VerticalAlignment="Center" Margin="10" Width="100">
+                    <Slider Width="100" Maximum="100" TickPlacement="BottomRight" TickFrequency="10" IsSnapToTickEnabled="True" Thumb.DragCompleted="Slider_DragCompleted" />
+                </StackPanel>
+                <DockPanel Width="260" HorizontalAlignment="Right" FlowDirection="LeftToRight">
+                    <Button x:Name="btnSettings" HorizontalAlignment="Right" Click="btnSettings_Click">
+                        <StackPanel>
+                            <Image x:Name="Settings" Source="/Images/settings.png" Width="30" Height="20" />
+                        </StackPanel>
+                    </Button>
+                </DockPanel>
+               
             </StackPanel>
 
 
@@ -207,7 +229,13 @@
                     <TextBox x:Name="txtSearchTerm" HorizontalAlignment="Center" VerticalAlignment="Center" Width="100"  />
                     <Image Source="/Images/wireless-router.png" Width="32" Height="32" HorizontalAlignment="Center" VerticalAlignment="Center" />
                 </StackPanel>
+                
             </Border>
+            <Grid Background="Lavender">
+                <DataGrid x:Name="routerDataGrid" AutoGenerateColumns="False" ItemsSource="{Binding}">
+                     
+                </DataGrid>
+            </Grid>
         </DockPanel>
 
     </Grid>

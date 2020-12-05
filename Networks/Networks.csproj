@@ -95,7 +95,14 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Algorithms\DijkstrasAlgorithm.cs" />
+    <Compile Include="Data\MessageType.cs" />
+    <Compile Include="Data\OperationState.cs" />
+    <Compile Include="PopupWindows\ProgramSettingsWindow.xaml.cs">
+      <DependentUpon>ProgramSettingsWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ViewModel\AnimateMessage.cs" />
     <Compile Include="Data\NetworkTypes.cs" />
+    <Compile Include="Data\RoutingTable.cs" />
     <Compile Include="GraphBits\PocEdge.cs" />
     <Compile Include="GraphBits\PocGraph.cs" />
     <Compile Include="GraphBits\PocVertex.cs" />
@@ -126,6 +133,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="PopupWindows\EdgeSettingsWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="PopupWindows\ProgramSettingsWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -191,6 +202,13 @@
   <ItemGroup>
     <Resource Include="Images\message_gray.png" />
     <Resource Include="Images\message_yellow.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\settings.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\pause.png" />
+    <Resource Include="Images\play.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
