@@ -1,4 +1,5 @@
 ﻿using Networks.Data;
+using System;
 using System.Diagnostics;
 
 namespace Networks
@@ -7,6 +8,7 @@ namespace Networks
     /// A simple identifiable vertex.
     /// </summary>
     [DebuggerDisplay("{ID}-{IsSatteliteRouter}")]
+    [Serializable]
     public class PocVertex
     {
         public static int globalIndex = 0;

@@ -95,11 +95,16 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Algorithms\DijkstrasAlgorithm.cs" />
+    <Compile Include="Data\LinkType.cs" />
     <Compile Include="Data\MessageType.cs" />
     <Compile Include="Data\OperationState.cs" />
+    <Compile Include="PopupWindows\CreatePackageWindow.xaml.cs">
+      <DependentUpon>CreatePackageWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="PopupWindows\ProgramSettingsWindow.xaml.cs">
       <DependentUpon>ProgramSettingsWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Services\DeepClone.cs" />
     <Compile Include="ViewModel\AnimateMessage.cs" />
     <Compile Include="Data\NetworkTypes.cs" />
     <Compile Include="Data\RoutingTable.cs" />
@@ -129,6 +134,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="PopupWindows\CreateNewGraphWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="PopupWindows\CreatePackageWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -209,6 +218,9 @@
   <ItemGroup>
     <Resource Include="Images\pause.png" />
     <Resource Include="Images\play.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\networks.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

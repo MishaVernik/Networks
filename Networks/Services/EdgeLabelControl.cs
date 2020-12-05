@@ -12,6 +12,7 @@ namespace Networks.Services
         public string Company { get; set; }
         public int Price { get; set; }
     }
+    [Serializable]
     public class EdgeLabelControl : ContentControl
     {
         public EdgeLabelControl()
@@ -112,7 +113,10 @@ namespace Networks.Services
         }
 
 
-
+        public void UpdateLayout(object sender, EventArgs e)
+        {
+            EdgeLabelControl_LayoutUpdated(sender, e);
+        }
         private void EdgeLabelControl_LayoutUpdated(object sender, EventArgs e)
         {
             if (!IsLoaded)

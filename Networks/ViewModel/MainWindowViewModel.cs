@@ -105,6 +105,11 @@ namespace Networks
             //throw new NotImplementedException();
         }
 
+        public void UpdateLayout()
+        {
+            LayoutAlgorithmType = "None"; 
+            NotifyPropertyChanged("Graph");
+        }
         public void ReLayoutGraph()
         {
             /* 

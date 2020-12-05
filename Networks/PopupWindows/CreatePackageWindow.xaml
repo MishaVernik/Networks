@@ -1,0 +1,27 @@
+﻿<Window x:Class="Networks.PopupWindows.CreatePackageWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Networks.PopupWindows"
+        mc:Ignorable="d"
+        Icon="/Images/networks.png"
+        WindowStyle="SingleBorderWindow"
+        Title="Create Package" Height="258.142" Width="219.455">
+    <Grid>
+        <Label x:Name="label" Content="Size" HorizontalAlignment="Left" Margin="10,16,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="txtSize" HorizontalAlignment="Left" Height="22" Margin="53,20,0,0" TextWrapping="Wrap" Text="1024" VerticalAlignment="Top" Width="145" PreviewTextInput="NumberValidationTextBox" TextChanged="txtSize_TextChanged"/>
+        <RichTextBox x:Name="richTextBox" HorizontalAlignment="Left" Height="118" Margin="53,47,0,0" VerticalAlignment="Top" Width="148" TextChanged="richTextBox_TextChanged">
+            <FlowDocument>
+                <Paragraph>
+                    <Run Text="RichTextBox"/>
+                </Paragraph>
+            </FlowDocument>
+        </RichTextBox>
+        <Button x:Name="btnSave" Content="Save" HorizontalAlignment="Left" Margin="22,198,0,0" VerticalAlignment="Top" Width="76" Click="btnSave_Click"/>
+        <Button x:Name="btnClose" Content="Close" HorizontalAlignment="Left" Margin="122,198,-14,0" VerticalAlignment="Top" Width="76" Click="btnClose_Click"/>
+        <Label x:Name="label1" Content="Info" HorizontalAlignment="Left" Margin="10,85,0,0" VerticalAlignment="Top"/>
+        <CheckBox x:Name="checkBox" Content="Generate random" HorizontalAlignment="Left" Margin="53,170,0,0" VerticalAlignment="Top" IsChecked="False" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked"/>
+
+    </Grid>
+</Window>

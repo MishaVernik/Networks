@@ -5,8 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Networks.PopupWindows"
         mc:Ignorable="d"
-        WindowStyle="None"
-        Title="CreateNewGraphWindow" Height="152.113" Width="253.119">
+        WindowStyle="SingleBorderWindow"
+        Background="BlanchedAlmond"
+        Title="Create New Graph" Height="152.113" Width="253.119">
     <Grid>
         <Button x:Name="ButtonCreateGraph" Content="Create" HorizontalAlignment="Left" Margin="84,91,0,0" VerticalAlignment="Top" Width="75" Click="ButtonCreateGraph_Click"/>
         <TextBox x:Name="txtNumberOfNodes" HorizontalAlignment="Left" Height="23" Margin="118,13,0,0" TextWrapping="Wrap" Text="30" VerticalAlignment="Top" Width="120" PreviewTextInput="NumberValidationTextBox"/>

@@ -3,6 +3,7 @@ using Dijkstra.NET.ShortestPath;
 using GraphSharp.Controls;
 using Networks.Data;
 using Networks.PopupWindows;
+using Networks.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -232,6 +233,7 @@ namespace Networks
                         {
                             if (edgeControl == null)
                                 return;
+
                             var source = edgeControl.Source;
                             var p1 = new Point(GraphCanvas.GetX(source), GraphCanvas.GetY(source));
                             var target = edgeControl.Target;
@@ -248,6 +250,8 @@ namespace Networks
                                 animateMessage.pointPath.AddRange(edgeControl.RoutePoints);
                             }
                             animateMessage.pointPath.Add(p2);
+
+                            animateMessage.edgeBandwidth.Add(new KeyValuePair<int, Point>(pocEdge.Bandwidth, p2));
                         }
                     }
                 }
@@ -426,11 +430,11 @@ namespace Networks
         private void zoomControl_LayoutUpdated(object sender, EventArgs e)
         {
 
-        }        
+        }
         #region Message Animation
 
         private void DrawAnimtaedMessageLine(Point currentPoint, Point point)
-        {            
+        {
             Line line = new Line();
             line.X1 = currentPoint.X;
             line.X2 = point.X;
@@ -464,11 +468,21 @@ namespace Networks
                     messages[message].isFinished = true;
                     continue;
                 }
-                Point point = MovePointTowards(messages[message].currentPoint, messages[message].pointPath[messages[message].currentPointId + 1], messages[message].distance);
+                Point point = MovePointTowards(
+                    messages[message].currentPoint,
+                    messages[message].pointPath[messages[message].currentPointId + 1],
+                    messages[message].distance + messages[message].edgeBandwidth[messages[message].currentEdgeId].Key / 1024);
                 DrawAnimtaedMessageLine(currentPoint: messages[message].currentPoint,
                     point: point);
                 messages[message].currentPoint = point;
-
+                if (Math.Abs(messages[message].edgeBandwidth[messages[message].currentEdgeId].Value.X - messages[message].pointPath[messages[message].currentPointId].X) < 20 &&
+                       Math.Abs(messages[message].edgeBandwidth[messages[message].currentEdgeId].Value.Y - messages[message].pointPath[messages[message].currentPointId].Y) < 20)
+                {
+                    if (messages[message].currentEdgeId + 1 < messages[message].edgeBandwidth.Count)
+                    {
+                        messages[message].currentEdgeId++;
+                    }
+                }
                 if (Math.Abs(messages[message].currentPoint.X - messages[message].pointPath[messages[message].currentPointId + 1].X) < 20 &&
                     Math.Abs(messages[message].currentPoint.Y - messages[message].pointPath[messages[message].currentPointId + 1].Y) < 20)
                 {
@@ -500,11 +514,14 @@ namespace Networks
                     operationState = OperationState.SendMessage;
                     this.SendMessage.Source = bitmapSelectedMessage;
                     it = 10;
-                    dispatcherTimer.Start();
+                    // Create package
+                    CreatePackageWindow createPackageWindow = new CreatePackageWindow();
+                    createPackageWindow.Show();
+                    //dispatcherTimer.Start();
                     break;
                 case OperationState.SendMessage:
                     operationState = OperationState.None;
-                    dispatcherTimer.Stop();
+                    //dispatcherTimer.Stop();
                     this.SendMessage.Source = bitmapMessage;
                     break;
                 default:
@@ -524,17 +541,89 @@ namespace Networks
         private void edgePath_MouseDown(object sender, MouseButtonEventArgs e)
         {
             EdgeSettingsWindow edgeSettings = new EdgeSettingsWindow();
+            edgeSettings.Closed += EdgeSettings_Closed;
             // TODO: send init params to the edgeSettings
             // 1. weight
             // 2. error propbability
             // 3. Number
             // 4. Дуплекс/ полудуплекс
+            edgeSettings.txtWeight.Text = ((PocEdge)((EdgeControl)sender).DataContext).Tag.ToString();
+            edgeSettings.txtConnected.Text = ((PocEdge)((EdgeControl)sender).DataContext).ID;
+            edgeSettings.txtBandwidth.Text = ((PocEdge)((EdgeControl)sender).DataContext).Bandwidth.ToString();
+            edgeSettings.txtErrorProbability.Text = ((PocEdge)((EdgeControl)sender).DataContext).ErrorProbability.ToString();
+            edgeSettings.txtSource.Text = ((PocEdge)((EdgeControl)sender).DataContext).Source.ID;
+            edgeSettings.txtTarget.Text = ((PocEdge)((EdgeControl)sender).DataContext).Target.ID;
+            if (((PocEdge)((EdgeControl)sender).DataContext).linkType == LinkType.Normal)
+            {
+                edgeSettings.rbtnNormalLink.IsChecked = true;
+                edgeSettings.rbtnSatteliteLink.IsChecked = false;
+            }
+            else
+            {
+                edgeSettings.rbtnNormalLink.IsChecked = false;
+                edgeSettings.rbtnSatteliteLink.IsChecked = true;
+            }
             edgeSettings.Show();
+        }
+
+        private void EdgeSettings_Closed(object sender, EventArgs e)
+        {
+            PocEdge pocEdge = null;
+            PocEdge newPocEdge = null;
+            var edgeSettings = (EdgeSettingsWindow)sender;
+            if (edgeSettings.IsSaved == true)
+            {
+                var edges = vm.Graph.Edges;
+                foreach (var edge in edges)
+                {
+                    if (edge.ID == edgeSettings.txtConnected.Text)
+                    {
+                        if (Int32.TryParse(edgeSettings.txtWeight.Text, out int weight))
+                        {
+                            edge.Tag = weight.ToString();
+                            edge.weight = weight;
+                        }
+                        if (Int32.TryParse(edgeSettings.txtBandwidth.Text, out int Bandwidth))
+                        {
+                            edge.Bandwidth = Bandwidth;
+                        }
+                        if (Int32.TryParse(edgeSettings.txtErrorProbability.Text, out int errorProb))
+                        {
+                            edge.ErrorProbability = errorProb;
+                        }
+                        if (edgeSettings.rbtnNormalLink.IsChecked == true)
+                        {
+                            edge.linkType = LinkType.Normal;
+                        }
+                        else
+                        {
+                            edge.linkType = LinkType.Sattelite;
+                        }
+                        pocEdge = edge;
+                        newPocEdge = new PocEdge(edge.ID, edge.Source, edge.Target, edge.Tag);
+                        newPocEdge.linkType = edge.linkType;
+                        newPocEdge.Bandwidth = edge.Bandwidth;
+                        newPocEdge.weight = edge.weight;
+                        newPocEdge.Tag = edge.Tag;
+                        newPocEdge.ErrorProbability = edge.ErrorProbability;
+                        newPocEdge.ToolTip = edge.ToolTip;
+                        vm.UpdateLayout();
+                        break;
+                    }
+
+                }
+            }
+            if (pocEdge != null)
+            {
+                vm.Graph.RemoveEdge(pocEdge);
+                vm.Graph.AddEdge(newPocEdge);
+            }
+
         }
         #endregion
         #region Settings
 
-       
+
         private void btnSettings_Click(object sender, RoutedEventArgs e)
         {
             ProgramSettingsWindow programSettingsWindow = new ProgramSettingsWindow();
@@ -554,7 +643,7 @@ namespace Networks
                     programSettingsWindow.rbtnLogicTCP.IsChecked = false;
                     programSettingsWindow.rbtndatagramUDP.IsChecked = false;
                     programSettingsWindow.rbtnVirtualConnection.IsChecked = true;
-                    break;              
+                    break;
                 default:
                     programSettingsWindow.rbtnLogicTCP.IsChecked = true;
                     programSettingsWindow.rbtndatagramUDP.IsChecked = false;
@@ -583,7 +672,7 @@ namespace Networks
         #endregion
         #region Timer Start/Stop
 
-       
+
         private void btnPauseTimer_Click(object sender, RoutedEventArgs e)
         {
             dispatcherTimer.Stop();
@@ -596,7 +685,7 @@ namespace Networks
 
         private void Slider_DragCompleted(object sender, System.Windows.Controls.Primitives.DragCompletedEventArgs e)
         {
-            dispatcherTimer.Interval = new TimeSpan(0,0,0,0, (Int32)((Slider)sender).Value);
+            dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, (Int32)((Slider)sender).Value);
         }
         #endregion
         #endregion

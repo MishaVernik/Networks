@@ -5,16 +5,31 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Networks.PopupWindows"
         mc:Ignorable="d"
-        Title="EdgeSettingsWindow" Height="231.791" Width="312.877">
+        Title="EdgeSettingsWindow" Height="363.485" Width="312.877">
     <Grid Margin="0,0,2,2">
-        <Button x:Name="btnOK" Content="Save" HorizontalAlignment="Left" Margin="48,169,0,0" VerticalAlignment="Top" Width="75" Click="btnOK_Click"/>
-        <Button x:Name="btnClose" Content="Close" HorizontalAlignment="Left" Margin="185,169,0,0" VerticalAlignment="Top" Width="75" Click="btnClose_Click"/>
-        <TextBox x:Name="txtWeight" HorizontalAlignment="Left" Height="23" Margin="123,10,0,0" TextWrapping="Wrap" Text="20" VerticalAlignment="Top" Width="120"/>
-        <TextBox x:Name="txtErrorProbability" HorizontalAlignment="Left" Height="23" Margin="123,46,0,0" TextWrapping="Wrap" Text="2%" VerticalAlignment="Top" Width="120"/>
-        <TextBox x:Name="textBox2" HorizontalAlignment="Left" Height="23" Margin="123,85,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="120"/>
+        <Button x:Name="btnOK" Content="Save" HorizontalAlignment="Left" Margin="48,300,0,0" VerticalAlignment="Top" Width="75" Click="btnOK_Click"/>
+        <Button x:Name="btnClose" Content="Close" HorizontalAlignment="Left" Margin="185,300,0,0" VerticalAlignment="Top" Width="75" Click="btnClose_Click"/>
+        <TextBox x:Name="txtWeight" HorizontalAlignment="Left" Height="23" Margin="140,11,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="120" PreviewTextInput="NumberValidationTextBox"/>
+        <TextBox x:Name="txtErrorProbability" HorizontalAlignment="Left" Height="23" Margin="140,47,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="120" PreviewTextInput="NumberValidationTextBox"/>
+        <TextBox x:Name="txtConnected" HorizontalAlignment="Left" Height="23" Margin="140,86,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="120"/>
         <Label x:Name="lblWeight" Content="Weight" HorizontalAlignment="Left" Margin="30,10,0,0" VerticalAlignment="Top"/>
-        <Label x:Name="lblErrorProbability" Content="Label" HorizontalAlignment="Left" Margin="30,46,0,0" VerticalAlignment="Top"/>
-        <Label x:Name="label_Copy1" Content="Label" HorizontalAlignment="Left" Margin="30,90,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="lblErrorProbability" Content="Error Probability %" HorizontalAlignment="Left" Margin="30,46,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="label_Copy1" Content="Connected" HorizontalAlignment="Left" Margin="30,86,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="txtBandwidth" HorizontalAlignment="Left" Height="23" Margin="140,117,0,0" TextWrapping="Wrap" PreviewTextInput="NumberValidationTextBox" Text="0" VerticalAlignment="Top" Width="120"/>
+        <Label x:Name="label_Copy" Content="Bandwidth Mb/tick" HorizontalAlignment="Left" Margin="30,117,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="label_Copy2" Content="Link type" HorizontalAlignment="Left" Margin="30,148,0,0" VerticalAlignment="Top"/>
+        <StackPanel HorizontalAlignment="Left" Height="39" Margin="140,145,0,0" VerticalAlignment="Top" Width="120">
+            <RadioButton x:Name="rbtnNormalLink" Content="Normal" IsChecked="True"/>
+            <RadioButton x:Name="rbtnSatteliteLink" Content="Sattelite"/>
+        </StackPanel>
+        <TextBox x:Name="txtSource" HorizontalAlignment="Left" Height="23" Margin="140,213,0,0" TextWrapping="Wrap" PreviewTextInput="NumberValidationTextBox" Text="0" VerticalAlignment="Top" Width="120"/>
+        <Label x:Name="label_Copy3" Content="Source ID" HorizontalAlignment="Left" Margin="30,213,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="txtTarget" HorizontalAlignment="Left" Height="23" Margin="140,244,0,0" TextWrapping="Wrap" PreviewTextInput="NumberValidationTextBox" Text="0" VerticalAlignment="Top" Width="120"/>
+        <Label x:Name="label_Copy4" Content="Target ID" HorizontalAlignment="Left" Margin="30,244,0,0" VerticalAlignment="Top"/>
+        <GroupBox x:Name="groupBox" Header="Connected" HorizontalAlignment="Left" Height="100" Margin="18,195,0,0" VerticalAlignment="Top" Width="257">
+        
+        </GroupBox>
+        <GroupBox x:Name="groupBox1" Header="Standard settings" HorizontalAlignment="Left" Height="195" Margin="10,0,0,0" VerticalAlignment="Top" Width="265"/>
 
     </Grid>
 </Window>

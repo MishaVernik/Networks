@@ -1,7 +1,9 @@
 ﻿using QuickGraph;
+using System;
 
 namespace Networks
 {
+    [Serializable]
     public class PocGraph : BidirectionalGraph<PocVertex, PocEdge>
     {
         public PocGraph() { }

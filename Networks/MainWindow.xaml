@@ -12,6 +12,7 @@
         x:Name="root"
         mc:Ignorable="d"
         Title="MainWindow" 
+        Icon="/Images/networks.png"
         WindowState="Maximized"
         WindowStyle="ToolWindow" d:DesignWidth="1151.825" d:DesignHeight="678">
     <Window.Resources>
