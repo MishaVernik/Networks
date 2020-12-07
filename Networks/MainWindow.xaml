@@ -22,7 +22,13 @@
             <StackPanel Orientation="Horizontal" Margin="5">
                 <Image x:Name="img" Source="/Images/wireless-router.png" Width="20" Height="20" />
                 <TextBlock Text="{Binding Path=ID, Mode=OneWay}" Foreground="White" />
+                <StackPanel x:Name="TEST">
+                    <TextBlock x:Name="fromPackages" Text="  From Packages: 0" Foreground="Green" ></TextBlock>
+                    <TextBlock x:Name="toPackages" Text="   To Packages: 0" Foreground="Aqua" ></TextBlock>
+                </StackPanel>
+
             </StackPanel>
+
             <DataTemplate.Triggers>
                 <DataTrigger Binding="{Binding networkType}" Value="0">
                     <Setter TargetName="img" Property="Source"
@@ -46,7 +52,9 @@
                                 <Expander IsExpanded="True">
                                     <ContentPresenter Content="{TemplateBinding Vertex}" 
                                             ContentTemplate="{StaticResource demoTemplate}"/>
+
                                 </Expander>
+
                                 <!--<Expander IsExpanded="True">
                                     <ContentPresenter Content="{TemplateBinding Vertex}" 
                                             ContentTemplate="{StaticResource demoTemplate}"/>
@@ -198,6 +206,21 @@
                 <StackPanel VerticalAlignment="Center" Margin="10" Width="100">
                     <Slider Width="100" Maximum="100" TickPlacement="BottomRight" TickFrequency="10" IsSnapToTickEnabled="True" Thumb.DragCompleted="Slider_DragCompleted" />
                 </StackPanel>
+                <Button x:Name="btnSave" Width="30" Height="25" Margin="5" Click="btnStartTimer_Click">
+                    <StackPanel>
+                        <Image x:Name="Save" Source="/Images/save.png" Width="30" Height="19" />
+                    </StackPanel>
+                </Button>
+                <Button x:Name="btnOpen" Width="30" Height="25" Margin="5" Click="btnStartTimer_Click">
+                    <StackPanel>
+                        <Image x:Name="Open" Source="/Images/open.png" Width="30" Height="19" />
+                    </StackPanel>
+                </Button>
+                <Button x:Name="btnPackageLog" Width="30" Height="25" Margin="5" Click="btnPackageLog_Click">
+                    <StackPanel>
+                        <Image x:Name="Log" Source="/Images/log.png" Width="20" Height="19" />
+                    </StackPanel>
+                </Button>
                 <DockPanel Width="260" HorizontalAlignment="Right" FlowDirection="LeftToRight">
                     <Button x:Name="btnSettings" HorizontalAlignment="Right" Click="btnSettings_Click">
                         <StackPanel>
@@ -205,7 +228,7 @@
                         </StackPanel>
                     </Button>
                 </DockPanel>
-               
+
             </StackPanel>
 
 
@@ -230,11 +253,16 @@
                     <TextBox x:Name="txtSearchTerm" HorizontalAlignment="Center" VerticalAlignment="Center" Width="100"  />
                     <Image Source="/Images/wireless-router.png" Width="32" Height="32" HorizontalAlignment="Center" VerticalAlignment="Center" />
                 </StackPanel>
-                
+
+            </Border>
+            <Border CornerRadius="6" BorderBrush="Gray" Background="LightGray" BorderThickness="2" DockPanel.Dock="Top">
+                <StackPanel x:Name="routerName">
+                    <TextBlock x:Name="txtRouterName" Text="Name:       Router 0"></TextBlock>
+                </StackPanel>
             </Border>
             <Grid Background="Lavender">
                 <DataGrid x:Name="routerDataGrid" AutoGenerateColumns="False" ItemsSource="{Binding}">
-                     
+
                 </DataGrid>
             </Grid>
         </DockPanel>

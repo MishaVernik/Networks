@@ -29,9 +29,9 @@ namespace Networks
         {
             public String info;
             public Int32 size;
-            public MessageType messageType;
+            public RoutingType messageType;
 
-            public PackageMessage(string info, int size, MessageType messageType)
+            public PackageMessage(string info, int size, RoutingType messageType)
             {
                 this.info = info;
                 this.size = size;
@@ -40,7 +40,7 @@ namespace Networks
             }
         }
         private PackageMessage packageMessage;
-        private MessageType messageType;
+        private RoutingType messageType;
 
         private MainWindowViewModel vm;
         private double RouterMenuHeight;
@@ -217,24 +217,43 @@ namespace Networks
                 graph.Connect((uint)source, (uint)target, Convert.ToInt32(edge.Tag), ""); //First node has key equal 1
             }
             //DijkstrasAlgorithm.dijkstra(m, Convert.ToInt32(fromRouter.Replace("Router", "").Replace("Computer", "")));
-            ShortestPathResult result = graph.Dijkstra((uint)fromRouterId + 1, (uint)toRouterId + 1); //result contains the shortest path                               
+            ShortestPathResult result = graph.Dijkstra((uint)fromRouterId + 1, (uint)toRouterId + 1); //result contains the shortest path                                        
+            ShortestPathResult reverseResult = graph.Dijkstra((uint)toRouterId + 1,(uint)fromRouterId + 1); //result contains the shortest path                                        
             var path = string.Join(" -> ", result.GetPath());
 
             // ================= CREATE ANIMATED MESSAGE ====================================
+            var reverseVertexPath = reverseResult.GetPath().ToList();
             var vertexPath = result.GetPath().ToList();
             AnimateMessage animateMessage = new AnimateMessage();
+            AnimateMessage reverseAnimateMessage = new AnimateMessage();
 
             animateMessage.size = packageMessage.size;
             animateMessage.info = packageMessage.info;
             animateMessage.messageType = packageMessage.messageType;
 
+            reverseAnimateMessage.size = packageMessage.size;
+            reverseAnimateMessage.info = packageMessage.info;
+            reverseAnimateMessage.messageType = packageMessage.messageType;
+
             var sourceVertex = vm.Graph.Vertices.Where(x => x.idNumber == fromRouterId).FirstOrDefault();
             var targetVertex = vm.Graph.Vertices.Where(x => x.idNumber == toRouterId).FirstOrDefault();
 
+            Int32 totalCost = 0;
+            Int32 reverseTotalCost = 0;
+
             animateMessage.sourceId = fromRouterId;
             animateMessage.targetId = toRouterId;
+            animateMessage.targetID = targetVertex.ID;
+            animateMessage.sourceID = sourceVertex.ID;
+
+            reverseAnimateMessage.sourceId = toRouterId;
+            reverseAnimateMessage.targetId = fromRouterId;
+            animateMessage.targetID = sourceVertex.ID;
+            animateMessage.sourceID = targetVertex.ID;
 
             animateMessage.vertexPath.Add(fromRouterId);
+            animateMessage.vertexPath.Add(toRouterId);
+
             for (int vertexIndex = 1; vertexIndex < vertexPath.Count(); vertexIndex++)
             {
 
@@ -242,7 +261,6 @@ namespace Networks
                 targetVertex = vm.Graph.Vertices.Where(x => x.idNumber == (int)vertexPath[vertexIndex] - 1).FirstOrDefault();
 
                 animateMessage.vertexPath.Add((int)vertexPath[vertexIndex] - 1);
-
 
                 PocEdge pocEdge;
                 if (vm.Graph.TryGetEdge(sourceVertex, targetVertex, out pocEdge))
@@ -270,30 +288,121 @@ namespace Networks
                                 animateMessage.pointPath.AddRange(edgeControl.RoutePoints);
                             }
                             animateMessage.pointPath.Add(p2);
-
+                            totalCost += Convert.ToInt32(pocEdge.Tag);
                             animateMessage.edgeBandwidth.Add(new KeyValuePair<int, Point>(pocEdge.Bandwidth, p2));
+                            animateMessage.edgeLinkType.Add(new KeyValuePair<int, LinkType>(pocEdge.Bandwidth, pocEdge.linkType));
                         }
                     }
                 }
             }
+            for (int vertexIndex = 1; vertexIndex < reverseVertexPath.Count(); vertexIndex++)
+            {
+
+                sourceVertex = vm.Graph.Vertices.Where(x => x.idNumber == (int)reverseVertexPath[vertexIndex - 1] - 1).FirstOrDefault();
+                targetVertex = vm.Graph.Vertices.Where(x => x.idNumber == (int)reverseVertexPath[vertexIndex] - 1).FirstOrDefault();
+
+                reverseAnimateMessage.vertexPath.Add((int)reverseVertexPath[vertexIndex] - 1);
+
+                PocEdge pocEdge;
+                if (vm.Graph.TryGetEdge(sourceVertex, targetVertex, out pocEdge))
+                {
+                    foreach (var edgeControl in this.graphLayout.Children.OfType<EdgeControl>())
+                    {
+                        if (((PocEdge)edgeControl.DataContext).ID == pocEdge.ID)
+                        {
+                            if (edgeControl == null)
+                                return;
+
+                            var source = edgeControl.Source;
+                            var p1 = new Point(GraphCanvas.GetX(source), GraphCanvas.GetY(source));
+                            var target = edgeControl.Target;
+                            var p2 = new Point(GraphCanvas.GetX(target), GraphCanvas.GetY(target));
+                            reverseAnimateMessage.edgeId = pocEdge.ID;
+                            if (reverseAnimateMessage.pointPath.Count == 0)
+                            {
+                                reverseAnimateMessage.currentPoint = p1;
+                                reverseAnimateMessage.pointPath.Add(p1);
+                            }
+
+                            if (edgeControl.RoutePoints != null)
+                            {
+                                reverseAnimateMessage.pointPath.AddRange(edgeControl.RoutePoints);
+                            }
+                            reverseAnimateMessage.pointPath.Add(p2);
+                            reverseTotalCost += Convert.ToInt32(pocEdge.Tag);
+                            reverseAnimateMessage.edgeBandwidth.Add(new KeyValuePair<int, Point>(pocEdge.Bandwidth, p2));
+                            reverseAnimateMessage.edgeLinkType.Add(new KeyValuePair<int, LinkType>(pocEdge.Bandwidth, pocEdge.linkType));
+                        }
+                    }
+                }
+            }
+            animateMessage.totalCost = totalCost;
+            reverseAnimateMessage.totalCost = reverseTotalCost;
+
             List<AnimateMessage> animateMessages = new List<AnimateMessage>();
             switch (packageMessage.messageType)
             {
-                case MessageType.Logical:                    
+                case RoutingType.Logical:
+
+                    // System Connect Packages
                     animateMessage.packageType = PackageType.System;
                     animateMessages.Add(animateMessage.DeepClone());
+
+                    reverseAnimateMessage.packageType = PackageType.System;
+                    animateMessages.Add(reverseAnimateMessage.DeepClone());
+
+                    // Info Packages
                     animateMessage.packageType = PackageType.Info;
                     animateMessages.Add(animateMessage.DeepClone());
+                    reverseAnimateMessage.packageType = PackageType.Info;
+                    animateMessages.Add(reverseAnimateMessage.DeepClone());
+                    // System Disonnect Packages
                     animateMessage.packageType = PackageType.System;
                     animateMessages.Add(animateMessage.DeepClone());
+
+                    reverseAnimateMessage.packageType = PackageType.System;
+                    animateMessages.Add(reverseAnimateMessage.DeepClone());
+
                     messages.Add(animateMessages);
                     break;
-                case MessageType.Datagram:
+                case RoutingType.Datagram:
                     animateMessage.packageType = PackageType.Info;
                     animateMessages.Add(animateMessage);
                     messages.Add(animateMessages);
                     break;
-                case MessageType.VirtualConnection:
+                case RoutingType.VirtualConnection:
+                    reverseAnimateMessage = animateMessage.DeepClone();
+                    reverseAnimateMessage.vertexPath.Reverse();
+                    reverseAnimateMessage.edgeBandwidth.Reverse();
+                    reverseAnimateMessage.edgeLinkType.Reverse();
+                    reverseAnimateMessage.pointPath.Reverse();
+                    if (reverseAnimateMessage.pointPath.Count > 0)
+                    {
+                        reverseAnimateMessage.currentPoint = reverseAnimateMessage.pointPath[0];
+                    }
+                    reverseAnimateMessage.sourceId = animateMessage.targetId;
+                    reverseAnimateMessage.targetId = animateMessage.sourceId;
+
+                    // System Connect Packages
+                    animateMessage.packageType = PackageType.System;
+                    animateMessages.Add(animateMessage.DeepClone());
+
+                    reverseAnimateMessage.packageType = PackageType.System;
+                    animateMessages.Add(reverseAnimateMessage.DeepClone());
+
+                    // Info Packages
+                    animateMessage.packageType = PackageType.Info;
+                    animateMessages.Add(animateMessage.DeepClone());
+                    reverseAnimateMessage.packageType = PackageType.Info;
+                    animateMessages.Add(reverseAnimateMessage.DeepClone());
+                    // System Disonnect Packages
+                    animateMessage.packageType = PackageType.System;
+                    animateMessages.Add(animateMessage.DeepClone());
+
+                    reverseAnimateMessage.packageType = PackageType.System;
+                    animateMessages.Add(reverseAnimateMessage.DeepClone());
+
+                    messages.Add(animateMessages);
                     break;
                 default:
                     break;
@@ -479,9 +588,10 @@ namespace Networks
             Line line = new Line();
             Line line2 = new Line();
             Line line3 = new Line();
-            Line line4 = new Line();
+            Line line4 = new Line();            
             var vector = new Point(currentPoint.X - point.X, currentPoint.Y - point.Y);
             var length = Math.Sqrt(vector.X * vector.X + vector.Y * vector.Y);
+            point = MovePointTowards(currentPoint, point, 10);
 
             line.X1 = currentPoint.X;
             line.X2 = point.X;
@@ -516,7 +626,7 @@ namespace Networks
                 default:
                     break;
             }
-           
+
             line.StrokeThickness = 4;
             line.Stroke = redBrush;
 
@@ -536,6 +646,7 @@ namespace Networks
             this.graphLayout.Children.Add(line4);
         }
         List<List<AnimateMessage>> messages = new List<List<AnimateMessage>>();
+        long ticksMade = 0;
         private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
             // code goes here
@@ -552,15 +663,35 @@ namespace Networks
                     {
                         continue;
                     }
+                    if (messages[outerMessageIndex][message].pointPath.Count == 0)
+                    {
+                        messages[outerMessageIndex][message].isFinished = true;
+                        continue;
+                    }
                     if (messages[outerMessageIndex][message].currentPointId + 1 >= messages[outerMessageIndex][message].pointPath.Count())
                     {
                         messages[outerMessageIndex][message].isFinished = true;
                         continue;
                     }
+                    messages[outerMessageIndex][message].ticksMade++;
+                    Int32 coefLink = 1;
+                    switch (messages[outerMessageIndex][message].edgeLinkType[messages[outerMessageIndex][message].currentEdgeId].Value)
+                    {
+                        case LinkType.Normal:
+                            coefLink = 1;
+                            break;
+                        case LinkType.Sattelite:
+                            coefLink = 3;
+                            break;
+                        default:
+                            break;
+                    }
+                    int v = (messages[outerMessageIndex][message].size / (messages[outerMessageIndex][message].edgeBandwidth[messages[outerMessageIndex][message].currentEdgeId].Key / coefLink));
                     Point point = MovePointTowards(
                         messages[outerMessageIndex][message].currentPoint,
                         messages[outerMessageIndex][message].pointPath[messages[outerMessageIndex][message].currentPointId + 1],
-                        messages[outerMessageIndex][message].distance + messages[outerMessageIndex][message].edgeBandwidth[messages[outerMessageIndex][message].currentEdgeId].Key / 1024);
+                        messages[outerMessageIndex][message].distance -
+                        (v >= messages[outerMessageIndex][message].distance ? 9 : v));
                     DrawAnimtaedMessageLine(
                         currentPoint: messages[outerMessageIndex][message].currentPoint,
                         point: point,
@@ -568,7 +699,7 @@ namespace Networks
                     messages[outerMessageIndex][message].currentPoint = point;
                     if (Math.Abs(messages[outerMessageIndex][message].edgeBandwidth[messages[outerMessageIndex][message].currentEdgeId].Value.X
                         - messages[outerMessageIndex][message].pointPath[messages[outerMessageIndex][message].currentPointId].X) < 20 &&
-                           Math.Abs(messages[outerMessageIndex][message].edgeBandwidth[messages[outerMessageIndex][message].currentEdgeId].Value.Y 
+                           Math.Abs(messages[outerMessageIndex][message].edgeBandwidth[messages[outerMessageIndex][message].currentEdgeId].Value.Y
                            - messages[outerMessageIndex][message].pointPath[messages[outerMessageIndex][message].currentPointId].Y) < 20)
                     {
                         if (messages[outerMessageIndex][message].currentEdgeId + 1 < messages[outerMessageIndex][message].edgeBandwidth.Count)
@@ -576,9 +707,9 @@ namespace Networks
                             messages[outerMessageIndex][message].currentEdgeId++;
                         }
                     }
-                    if (Math.Abs(messages[outerMessageIndex][message].currentPoint.X 
+                    if (Math.Abs(messages[outerMessageIndex][message].currentPoint.X
                         - messages[outerMessageIndex][message].pointPath[messages[outerMessageIndex][message].currentPointId + 1].X) < 20 &&
-                        Math.Abs(messages[outerMessageIndex][message].currentPoint.Y 
+                        Math.Abs(messages[outerMessageIndex][message].currentPoint.Y
                         - messages[outerMessageIndex][message].pointPath[messages[outerMessageIndex][message].currentPointId + 1].Y) < 20)
                     {
                         messages[outerMessageIndex][message].distance = 1;
@@ -634,12 +765,19 @@ namespace Networks
             if (createPackageWindow.IsSaved)
             {
                 string richText = new TextRange(createPackageWindow.richTextBox.Document.ContentStart, createPackageWindow.richTextBox.Document.ContentEnd).Text;
-                packageMessage = new PackageMessage(richText, Convert.ToInt32(createPackageWindow.txtSize.Text), messageType);
+                packageMessage = new PackageMessage(
+                    richText,
+                    Convert.ToInt32(createPackageWindow.txtSize.Text) * (Convert.ToInt32(createPackageWindow.txtQuantity.Text) > 0 ? Convert.ToInt32(createPackageWindow.txtQuantity.Text) : 1),
+                    messageType);
             }
         }
 
         private Point MovePointTowards(Point a, Point b, int distance)
         {
+            if (a == b)
+            {
+                return a;
+            }
             var vector = new Point(b.X - a.X, b.Y - a.Y);
             var length = Math.Sqrt(vector.X * vector.X + vector.Y * vector.Y);
             var unitVector = new Point(vector.X / length, vector.Y / length);
@@ -738,17 +876,17 @@ namespace Networks
             ProgramSettingsWindow programSettingsWindow = new ProgramSettingsWindow();
             switch (messageType)
             {
-                case MessageType.Logical:
+                case RoutingType.Logical:
                     programSettingsWindow.rbtnLogicTCP.IsChecked = true;
                     programSettingsWindow.rbtndatagramUDP.IsChecked = false;
                     programSettingsWindow.rbtnVirtualConnection.IsChecked = false;
                     break;
-                case MessageType.Datagram:
+                case RoutingType.Datagram:
                     programSettingsWindow.rbtnLogicTCP.IsChecked = false;
                     programSettingsWindow.rbtndatagramUDP.IsChecked = true;
                     programSettingsWindow.rbtnVirtualConnection.IsChecked = false;
                     break;
-                case MessageType.VirtualConnection:
+                case RoutingType.VirtualConnection:
                     programSettingsWindow.rbtnLogicTCP.IsChecked = false;
                     programSettingsWindow.rbtndatagramUDP.IsChecked = false;
                     programSettingsWindow.rbtnVirtualConnection.IsChecked = true;
@@ -767,15 +905,15 @@ namespace Networks
         {
             if (((ProgramSettingsWindow)sender).rbtnLogicTCP.IsChecked == true)
             {
-                messageType = MessageType.Logical;
+                messageType = RoutingType.Logical;
             }
             else if (((ProgramSettingsWindow)sender).rbtndatagramUDP.IsChecked == true)
             {
-                messageType = MessageType.Datagram;
+                messageType = RoutingType.Datagram;
             }
             else if (((ProgramSettingsWindow)sender).rbtnVirtualConnection.IsChecked == true)
             {
-                messageType = MessageType.VirtualConnection;
+                messageType = RoutingType.VirtualConnection;
             }
         }
         #endregion
@@ -784,6 +922,9 @@ namespace Networks
 
         private void btnPauseTimer_Click(object sender, RoutedEventArgs e)
         {
+            //Console.WriteLine("______________________________");
+            //Console.WriteLine("TIME ELAPSED: {0}", dispatcherTimer.El);
+            //Console.WriteLine("______________________________");
             dispatcherTimer.Stop();
         }
 
@@ -797,6 +938,13 @@ namespace Networks
             dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, (Int32)((Slider)sender).Value);
         }
         #endregion
+
         #endregion
+
+        private void btnPackageLog_Click(object sender, RoutedEventArgs e)
+        {
+            ShowPackagesLogWindow showPackagesLogWindow = new ShowPackagesLogWindow(animateMessages: this.messages);
+            showPackagesLogWindow.Show();
+        }
     }
 }

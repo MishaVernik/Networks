@@ -7,21 +7,23 @@
         mc:Ignorable="d"
         Icon="/Images/networks.png"
         WindowStyle="SingleBorderWindow"
-        Title="Create Package" Height="258.142" Width="219.455">
-    <Grid>
+        Title="Create Package" Height="344.142" Width="241.955">
+    <Grid Margin="0,0,2,0">
         <Label x:Name="label" Content="Size" HorizontalAlignment="Left" Margin="10,16,0,0" VerticalAlignment="Top"/>
-        <TextBox x:Name="txtSize" HorizontalAlignment="Left" Height="22" Margin="53,20,0,0" TextWrapping="Wrap" Text="1024" VerticalAlignment="Top" Width="145" PreviewTextInput="NumberValidationTextBox" TextChanged="txtSize_TextChanged"/>
-        <RichTextBox x:Name="richTextBox" HorizontalAlignment="Left" Height="118" Margin="53,47,0,0" VerticalAlignment="Top" Width="148" TextChanged="richTextBox_TextChanged">
+        <TextBox x:Name="txtSize" HorizontalAlignment="Left" Height="22" Margin="71,20,0,0" TextWrapping="Wrap" Text="1024" VerticalAlignment="Top" Width="145" PreviewTextInput="NumberValidationTextBox" TextChanged="txtSize_TextChanged"/>
+        <RichTextBox x:Name="richTextBox" HorizontalAlignment="Left" Height="118" Margin="71,47,-8,0" VerticalAlignment="Top" Width="148" TextChanged="richTextBox_TextChanged">
             <FlowDocument>
                 <Paragraph>
                     <Run Text="RichTextBox"/>
                 </Paragraph>
             </FlowDocument>
         </RichTextBox>
-        <Button x:Name="btnSave" Content="Save" HorizontalAlignment="Left" Margin="22,198,0,0" VerticalAlignment="Top" Width="76" Click="btnSave_Click"/>
-        <Button x:Name="btnClose" Content="Close" HorizontalAlignment="Left" Margin="122,198,-14,0" VerticalAlignment="Top" Width="76" Click="btnClose_Click"/>
+        <Button x:Name="btnSave" Content="Save" HorizontalAlignment="Left" Margin="16,283,0,0" VerticalAlignment="Top" Width="76" Click="btnSave_Click"/>
+        <Button x:Name="btnClose" Content="Close" HorizontalAlignment="Left" Margin="116,283,0,0" VerticalAlignment="Top" Width="76" Click="btnClose_Click"/>
         <Label x:Name="label1" Content="Info" HorizontalAlignment="Left" Margin="10,85,0,0" VerticalAlignment="Top"/>
-        <CheckBox x:Name="checkBox" Content="Generate random" HorizontalAlignment="Left" Margin="53,170,0,0" VerticalAlignment="Top" IsChecked="False" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked"/>
+        <CheckBox x:Name="checkBox" Content="Generate random" HorizontalAlignment="Left" Margin="71,170,0,0" VerticalAlignment="Top" IsChecked="False" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked"/>
+        <TextBox x:Name="txtQuantity" HorizontalAlignment="Left" Height="23" Margin="71,206,0,0" TextWrapping="Wrap" Text="1" VerticalAlignment="Top" PreviewTextInput="NumberValidationTextBox" Width="148"/>
+        <Label x:Name="label_Copy" Content="Quantity" HorizontalAlignment="Left" Margin="10,202,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.887,4.5"/>
 
     </Grid>
 </Window>

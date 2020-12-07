@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Networks.Data
 {
     [Serializable]
-    public enum MessageType
+    public enum RoutingType
     {
         Logical,
         Datagram,

@@ -96,7 +96,7 @@
     </ApplicationDefinition>
     <Compile Include="Algorithms\DijkstrasAlgorithm.cs" />
     <Compile Include="Data\LinkType.cs" />
-    <Compile Include="Data\MessageType.cs" />
+    <Compile Include="Data\RoutingType.cs" />
     <Compile Include="Data\OperationState.cs" />
     <Compile Include="Data\PackageType.cs" />
     <Compile Include="PopupWindows\CreatePackageWindow.xaml.cs">
@@ -104,6 +104,9 @@
     </Compile>
     <Compile Include="PopupWindows\ProgramSettingsWindow.xaml.cs">
       <DependentUpon>ProgramSettingsWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="PopupWindows\ShowPackagesLogWindow.xaml.cs">
+      <DependentUpon>ShowPackagesLogWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Services\DeepClone.cs" />
     <Compile Include="ViewModel\AnimateMessage.cs" />
@@ -147,6 +150,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="PopupWindows\ProgramSettingsWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="PopupWindows\ShowPackagesLogWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -222,6 +229,13 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\networks.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\open.png" />
+    <Resource Include="Images\save.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\log.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
