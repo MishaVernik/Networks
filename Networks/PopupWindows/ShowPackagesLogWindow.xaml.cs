@@ -37,6 +37,7 @@ namespace Networks.PopupWindows
         public bool isFinished { get; set; }
         public String type { get; set; }
         public String rType { get; set; }
+        public int totalPackages { get; set; }
 
     }
     /// <summary>
@@ -70,6 +71,12 @@ namespace Networks.PopupWindows
             c12.Width = 110;
             c12.Binding = new Binding("rType");
             this.dataGridPackageLogs.Columns.Add(c12);
+
+            DataGridTextColumn c112 = new DataGridTextColumn();
+            c112.Header = "Total packages";
+            c112.Width = 110;
+            c112.Binding = new Binding("totalPackages");
+            this.dataGridPackageLogs.Columns.Add(c112);
 
             DataGridTextColumn c3 = new DataGridTextColumn();
             c3.Header = "Time Spent";
@@ -154,7 +161,8 @@ namespace Networks.PopupWindows
                         from = packageLogInfo.from,
                         id = packageLogInfo.id,
                         size = packageLogInfo.size,
-                        totalCost = packageLogInfo.totalCost
+                        totalCost = packageLogInfo.totalCost,
+                        totalPackages = packageLogInfo.size / 128
                     });
                 }
                 if (isSystem)
@@ -168,7 +176,8 @@ namespace Networks.PopupWindows
                         from = packageLogSystem.from,
                         id = packageLogSystem.id,
                         size = packageLogSystem.size,
-                        totalCost = packageLogSystem.totalCost
+                        totalCost = packageLogSystem.totalCost,
+                        totalPackages = 4
                     });
                 }
             }

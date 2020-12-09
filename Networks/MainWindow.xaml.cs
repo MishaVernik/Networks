@@ -344,23 +344,35 @@ namespace Networks
             {
                 case RoutingType.Logical:
 
+                    int size = animateMessage.size;
+                    const int packageDividerSize = 64;
+                    int number = animateMessage.size / packageDividerSize;
                     // System Connect Packages
                     animateMessage.packageType = PackageType.System;
+                    animateMessage.size = 40 * number + 40;
                     animateMessages.Add(animateMessage.DeepClone());
 
                     reverseAnimateMessage.packageType = PackageType.System;
+                    reverseAnimateMessage.size = 40 * number + 40;
                     animateMessages.Add(reverseAnimateMessage.DeepClone());
 
                     // Info Packages
+                    animateMessage.size = size;
                     animateMessage.packageType = PackageType.Info;
+                    
                     animateMessages.Add(animateMessage.DeepClone());
+
                     reverseAnimateMessage.packageType = PackageType.Info;
+                    reverseAnimateMessage.size = size;
                     animateMessages.Add(reverseAnimateMessage.DeepClone());
+
                     // System Disonnect Packages
                     animateMessage.packageType = PackageType.System;
+                    animateMessage.size = 40 * number + 40;
                     animateMessages.Add(animateMessage.DeepClone());
 
                     reverseAnimateMessage.packageType = PackageType.System;
+                    reverseAnimateMessage.size = 40 * number + 40;
                     animateMessages.Add(reverseAnimateMessage.DeepClone());
 
                     messages.Add(animateMessages);
@@ -371,6 +383,10 @@ namespace Networks
                     messages.Add(animateMessages);
                     break;
                 case RoutingType.VirtualConnection:
+                    int size1 = animateMessage.size;
+                    const int packageDividerSize1 = 64;
+                    int number1 = animateMessage.size / packageDividerSize1;
+
                     reverseAnimateMessage = animateMessage.DeepClone();
                     reverseAnimateMessage.vertexPath.Reverse();
                     reverseAnimateMessage.edgeBandwidth.Reverse();
@@ -385,21 +401,30 @@ namespace Networks
 
                     // System Connect Packages
                     animateMessage.packageType = PackageType.System;
+                    animateMessage.size = 40 * number1 + 40;
                     animateMessages.Add(animateMessage.DeepClone());
 
                     reverseAnimateMessage.packageType = PackageType.System;
+                    reverseAnimateMessage.size = 40 * number1 + 40;
                     animateMessages.Add(reverseAnimateMessage.DeepClone());
 
                     // Info Packages
+                    animateMessage.size = size1;
                     animateMessage.packageType = PackageType.Info;
+
                     animateMessages.Add(animateMessage.DeepClone());
+
                     reverseAnimateMessage.packageType = PackageType.Info;
+                    reverseAnimateMessage.size = size1;
                     animateMessages.Add(reverseAnimateMessage.DeepClone());
+
                     // System Disonnect Packages
                     animateMessage.packageType = PackageType.System;
+                    animateMessage.size = 40 * number1 + 40;
                     animateMessages.Add(animateMessage.DeepClone());
 
                     reverseAnimateMessage.packageType = PackageType.System;
+                    reverseAnimateMessage.size = 40 * number1 + 40;
                     animateMessages.Add(reverseAnimateMessage.DeepClone());
 
                     messages.Add(animateMessages);
@@ -432,6 +457,10 @@ namespace Networks
         private void ButtonRelayoutGraph(object sender, RoutedEventArgs e)
         {
             vm.ReLayoutGraph();
+            messages.Clear();
+            ResetDrawingMode();
+            dispatcherTimer.Stop();
+            operationState = OperationState.None;
         }
         protected void OnWindowSizeChanged(object sender, SizeChangedEventArgs e)
         {

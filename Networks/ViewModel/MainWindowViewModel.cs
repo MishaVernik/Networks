@@ -132,6 +132,7 @@ namespace Networks
             }
             CreateNewGraphWindow graphWindow = (CreateNewGraphWindow)sender;
             computerCounter = 0;
+            PocVertex.globalIndex = 0;
             routerCounter = 0;
             Graph = new PocGraph(true);
             List<PocVertex> pocVertices = new List<PocVertex>();
